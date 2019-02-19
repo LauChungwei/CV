@@ -1,0 +1,143 @@
+#include <opencv2/opencv.hpp>
+#include <iostream>
+#include <math.h>
+
+using namespace cv;
+using namespace std;
+int main(int argc, char* argv) {
+	// load video
+	VideoCapture capture;
+	capture.open("C:/APP/71.mp4");
+	if (!capture.isOpened()) {
+		//printf("could not find video file");
+		printf("could not open the camera");
+		return -1;
+	}
+
+	Mat frame, mask;
+	Mat kernel1 = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));
+	Mat kernel2 = getStructuringElement(MORPH_RECT, Size(5, 5), Point(-1, -1));
+	Rect roi;
+
+	namedWindow("input video", CV_WINDOW_AUTOSIZE);
+	namedWindow("track mask", CV_WINDOW_AUTOSIZE);
+	while (capture.read(frame)) {
+
+		//目标颜色为黑色,提取前景图像 
+		inRange(frame, Scalar(0, 0, 0), Scalar(30, 30, 30), mask);
+
+		//目标颜色为白色
+		//inRange(frame, Scalar(150, 150, 150), Scalar(255, 255, 255), mask);
+
+		morphologyEx(mask, mask, MORPH_OPEN, kernel1, Point(-1, -1), 1); // 开操作
+		dilate(mask, mask, kernel2, Point(-1, -1), 4);// 膨胀
+		erode(mask, mask, kernel2, Point(-1, -1), 4);//腐蚀
+		//bilateralFilter(mask, mask, 10, 100, 3);
+		imshow("track mask", mask);
+
+		//processFrame(mask, roi); // 轮廓发现与位置标定
+		vector<vector<Point>> contours;
+		vector<Vec4i> hireachy;
+		int num(0);
+		findContours(mask, contours, hireachy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
+		//cout << contours.size();
+
+		if (contours.size() > 0) {
+			double maxArea = 0.0;
+			for (size_t t = 0; t < contours.size(); t++) {
+				double area = contourArea(contours[static_cast<int>(t)]);
+				//寻找了面积最大的矩形框对应的轮廓线
+				if (area > maxArea) {
+					maxArea = area;
+					num = t;
+					roi = boundingRect(contours[static_cast<int>(t)]);
+				}
+			}
+		}
+		else {
+			roi.x = roi.y = roi.width = roi.height = 0;
+		}
+		//绘制目标轮廓曲线
+		drawContours(frame,contours,num, Scalar(0,0,255),3,8);
+
+		int maxx(0), maxy(0), minx(100), miny(100);
+		for (int j = 0; j<contours[num].size(); j++)
+		{
+			//绘制出contours向量内所有的像素点
+			//Point P = Point(contours[i][j].x, contours[i][j].y);
+			//Contours.at<uchar>(P) = 255;
+
+			if (maxx < contours[num][j].x)
+				maxx = contours[num][j].x;
+			if (maxy < contours[num][j].y)
+				maxy = contours[num][j].y;
+
+			if (j == 0) {
+				minx = contours[num][j].x;
+				miny = contours[num][j].y;
+			}
+
+			if (minx >contours[num][j].x)
+				minx = contours[num][j].x;
+			if (miny > contours[num][j].y)
+				miny = contours[num][j].y;
+		}
+		//分别计算得到目标圆形在水平方向和竖直方向的直径
+		double dx = maxx - minx;
+		double dy = maxy - miny;
+
+		//cout << "maxx=" << maxx << endl << "minx=" << minx << endl << "maxy=" << maxy << endl << "miny=" << miny << endl;
+		cout << "x方向的直径为：" << dx << endl;
+		cout << "y方向的直径为：" << dy << endl;
+		
+
+		//通过两个方向上的直径长度的差异进行偏转角度的计算
+		double theta(0), ratio(0);
+		if (dy >= dx)
+		{
+			ratio = dx / dy;
+			cout << "水平方向侧偏角为：" << endl;
+		}
+		else
+		{
+			ratio = dy / dx;
+			cout << "垂直方向侧偏角为：" << endl;
+		}
+		theta = acos(ratio) / 3.14 * 180;
+		cout << "θ=" << theta<<"°";
+
+		double area = contourArea(contours[num]);
+		double len = arcLength(contours[num], true);
+		cout << "面积为：" << area << '\t' << "周长为：" << len << endl;
+
+		//计算轮廓矩
+		Moments m= moments(contours[num], false);;
+
+		//计算轮廓的质心
+		Point2f center;
+			center = Point2f(float(m.m10 / m.m00), float(m.m01 / m.m00));
+
+			cout << "质心（加油口中心）坐标为：（"<<center.x<<","<<center.y<<"）"<<endl<<endl;
+
+		//画轮廓及其质心
+		//Mat drawing = Mat::zeros(canny_output.size(), CV_8UC3);
+
+			Scalar color = Scalar(0,255,255);
+			//drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, Point());
+			circle(frame, center, 3, color, -1, 8, 0);
+			//imageContours.at<uchar>(mc[i]) = 255;
+	
+		//rectangle(frame, roi, Scalar(0, 0, 255), 3, 8, 0);
+		imshow("input video", frame);
+
+		// trigger exit
+		char c = waitKey(100);
+		if (c == 27) {
+			break;
+		}
+	}
+
+	capture.release();
+	waitKey(0);
+	return 0;
+}
