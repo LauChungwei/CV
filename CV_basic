@@ -1,0 +1,33 @@
+##1.图像遍历
+  1.1 at（）函数
+  Mat src = Mat(100,100,CV_8UC3);
+  for (int i=0;i<src.rows;i++)
+    for (int j=0;j<src.cols;j++){
+      Vec3b pixel;
+      pixel[0]=128;
+       pixel[1]=128;
+        pixel[2]=128;
+      src.at<Vec3b>(i,j)=pixel;
+      }
+      
+   1.2 迭代器 iretator
+    MatIterator_<Vec3b> colorit, colorend;
+    for(colorit = colorImage.begin<Vec3b>(), colorend = colorImage.end<Vec3b>(); colorit != colorend; ++colorit)
+    {
+        (*colorit)[0] = rand() % 255;       //Blue,注意这里取地址符号需要添加括号限制
+        (*colorit)[1] = rand() % 255;       //Green
+        (*colorit)[2] = rand() % 255;       //Red
+    }
+    
+    1.3 指针
+     for(int i = 0; i < colorImage.rows; ++i)
+    {
+        Vec3b* p = colorImage.ptr<Vec3b>(i);//获取每一行的首地址
+        for(int j = 0; j < colorImage.cols; ++j)
+        {
+            p[j][0] = i % 255;      //Blue
+            p[j][1] = j % 255;      //Gree
+            p[j][2] = 0;            //Red
+        }
+    }
+
