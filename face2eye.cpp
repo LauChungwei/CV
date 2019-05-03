@@ -17,11 +17,11 @@ void trackEye(Mat&  im, Mat& tpl, Rect& rect) {
 	int result_cols = im.cols - tpl.cols + 1;
 	int result_rows = im.rows - tpl.rows + 1;
 
-	// Ä£°åÆ¥Åä
+	// æ¨¡æ¿åŒ¹é…
 	result.create(result_rows, result_cols, CV_32FC1);
 	matchTemplate(im, tpl, result, TM_CCORR_NORMED);
 
-	// Ñ°ÕÒÎ»ÖÃ
+	// å¯»æ‰¾ä½ç½®
 	double minval, maxval;
 	Point minloc, maxloc;
 	minMaxLoc(result, &minval, &maxval, &minloc, &maxloc);
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 	Mat gray;
 	vector<Rect> faces;
 	vector<Rect> eyes;
-	Mat lefttpl, righttpl; // Ä£°å
+	Mat lefttpl, righttpl; // æ¨¡æ¿
 	while (capture.read(frame)) {
 		flip(frame, frame, 1);
 		cvtColor(frame, gray, COLOR_BGR2GRAY);
@@ -63,13 +63,13 @@ int main(int argc, char** argv) {
 		for (size_t t = 0; t < faces.size(); t++) {
 			rectangle(frame, faces[t], Scalar(255, 0, 0), 2, 8, 0);
 
-			// ¼ÆËã offset ROI
+			// è®¡ç®— offset ROI
 			int offsety = faces[t].height / 4;
 			int offsetx = faces[t].width / 8;
 			int eyeheight = faces[t].height/2 - offsety;
 			int eyewidth = faces[t].width/2 - offsetx;
 
-			// ½ØÈ¡×óÑÛÇøÓò
+			// æˆªå–å·¦çœ¼åŒºåŸŸ
 			Rect leftRect;
 			leftRect.x = faces[t].x + offsetx;
 			leftRect.y = faces[t].y + offsety;
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 			leftRect.height = eyeheight;
 			Mat leftRoi = gray(leftRect);
 
-			// ¼ì²â×óÑÛ
+			// æ£€æµ‹å·¦çœ¼
 			leftyeye_detector.detectMultiScale(leftRoi, eyes, 1.1, 1, 0, Size(20, 20));
 			if (lefttpl.empty()) {
 				if (eyes.size()) {
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 				}
 			}
 			else {
-				// ¸ú×Ù£¬ »ùÓÚÄ£°åÆ¥Åä
+				// è·Ÿè¸ªï¼Œ åŸºäºæ¨¡æ¿åŒ¹é…
 				leftEye.x = leftRect.x;
 				leftEye.y = leftRect.y;
 				trackEye(leftRoi, lefttpl, leftEye);
@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
 				}
 			}
 
-			// ½ØÈ¡ÓÒÑÛÇøÓò
+			// æˆªå–å³çœ¼åŒºåŸŸ
 			Rect rightRect;
 			rightRect.x = faces[t].x + faces[t].width/2;
 			rightRect.y = faces[t].y + offsety;
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 			rightRect.height = eyeheight;
 			Mat rightRoi = gray(rightRect);
 
-			// ¼ì²âÓÒÑÛ
+			// æ£€æµ‹å³çœ¼
 			righteye_detector.detectMultiScale(rightRoi, eyes, 1.1, 1, 0, Size(20, 20));
 			if (righttpl.empty()) {
 				if (eyes.size()) {
@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
 					rectangle(frame, rightRect, Scalar(0, 255, 255), 2, 8, 0);
 				}
 			} else {
-				// ¸ú×Ù£¬ »ùÓÚÄ£°åÆ¥Åä
+				// è·Ÿè¸ªï¼Œ åŸºäºæ¨¡æ¿åŒ¹é…
 				rightEye.x = rightRect.x;
 				rightEye.y = rightRect.y;
 				trackEye(rightRoi, righttpl, rightEye);
