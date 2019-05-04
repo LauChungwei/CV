@@ -12,8 +12,10 @@ CascadeClassifier leftyeye_detector;
 CascadeClassifier righteye_detector;
 
 Rect leftEye , rightEye;
+
+//trackEye（）函数，接受待检测图像（这里是人脸），以及人眼图像模板，以及一个rect对还好吧象用来保存眼睛的位置信息
 void trackEye(Mat&  im, Mat& tpl, Rect& rect) {
-	Mat result;
+	Mat result;		//用来保存模板匹配的结果
 	int result_cols = im.cols - tpl.cols + 1;
 	int result_rows = im.rows - tpl.rows + 1;
 
@@ -56,14 +58,14 @@ int main(int argc, char** argv) {
 	vector<Rect> eyes;
 	Mat lefttpl, righttpl; // 模板
 	while (capture.read(frame)) {
-		flip(frame, frame, 1);
+		flip(frame, frame, 1);		//处理镜像带来的水平反向
 		cvtColor(frame, gray, COLOR_BGR2GRAY);
 		equalizeHist(gray, gray);
 		face_detector.detectMultiScale(gray, faces, 1.1, 3, 0, Size(30, 30));
 		for (size_t t = 0; t < faces.size(); t++) {
 			rectangle(frame, faces[t], Scalar(255, 0, 0), 2, 8, 0);
 
-			// 计算 offset ROI
+			// 计算 offset ROI，缩小模板匹配的区域，减少计算量（对可能面积缩小的同时，同时考虑了偏移量）
 			int offsety = faces[t].height / 4;
 			int offsetx = faces[t].width / 8;
 			int eyeheight = faces[t].height/2 - offsety;
@@ -138,3 +140,5 @@ int main(int argc, char** argv) {
 	waitKey(0);
 	return 0;
 }
+
+
