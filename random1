@@ -17,17 +17,17 @@ CascadeClassifier leftyeye_detector;
 
 string haar_face_datapath = "D:/opencv340/opencv/build/etc/haarcascades/haarcascade_frontalface_alt_tree.xml";
 
-string path = "D:/×ÀÃæ/lcw/data_diy/data/";
+string path = "D:/æ¡Œé¢/lcw/data_diy/data/";
 
 int main() {
 	int fileno;
-	cout << "ÇëÑ¡ÔñÒ»¸öÎÄ¼ş¼Ğ£¨Êı×Ö0~9£©£º";
+	cout << "è¯·é€‰æ‹©ä¸€ä¸ªæ–‡ä»¶å¤¹ï¼ˆæ•°å­—0~9ï¼‰ï¼š";
 	cin >> fileno ;
 	
 	//path1 += to_string(node) + "/";
 	path += to_string(fileno) ;
 	
-	//ÔÚ¿ªÊ¼Ğ´ÈëÎÄ¼şÖ®Ç°Ê×ÏÈ¼ì²éÎÄ¼ş¼ĞÖĞÒÑ¾­ÓĞµÄÎÄ¼şµÄÊıÁ¿£¬ÔÚ´Ë»ù´¡ÉÏÃüÃûÎÄ¼ş¼Ğ±ÜÃâÎÄ¼ş¸²¸Ç
+	//åœ¨å¼€å§‹å†™å…¥æ–‡ä»¶ä¹‹å‰é¦–å…ˆæ£€æŸ¥æ–‡ä»¶å¤¹ä¸­å·²ç»æœ‰çš„æ–‡ä»¶çš„æ•°é‡ï¼Œåœ¨æ­¤åŸºç¡€ä¸Šå‘½åæ–‡ä»¶å¤¹é¿å…æ–‡ä»¶è¦†ç›–
 	int count(0);
 	for (auto&fe : fs::directory_iterator(path))	
 	{
@@ -35,7 +35,7 @@ int main() {
 	}
 	cout << count << endl;
 
-	//¶¨ÒåËæ»úÊıÉú³ÉÒıÇæ
+	//å®šä¹‰éšæœºæ•°ç”Ÿæˆå¼•æ“
 	default_random_engine e(time(0));
 	default_random_engine ex(time(0));
 	default_random_engine ey(time(0));
@@ -44,7 +44,7 @@ int main() {
 	uniform_int_distribution<unsigned> ux(0, 427);
 	uniform_int_distribution<unsigned> uy(0, 260);
 
-	//¶¨Òå±³¾°
+	//å®šä¹‰èƒŒæ™¯
 	Mat screen = Mat(Size(1281, 780), CV_8UC3, Scalar(255, 255, 255));
 	namedWindow("SCREEN", WINDOW_AUTOSIZE);
 	
@@ -70,20 +70,20 @@ int main() {
 
 	while (capture.read(frame)) {
 		
-		flip(frame, frame, 1);		//´¦Àí¾µÏñ´øÀ´µÄË®Æ½·´Ïò
+		flip(frame, frame, 1);		//å¤„ç†é•œåƒå¸¦æ¥çš„æ°´å¹³åå‘
 		cvtColor(frame, gray, COLOR_BGR2GRAY);
-		equalizeHist(gray, gray);		//Ö±·½Í¼¶Ô¾ùºâ»¯Ç¿»¯Í¼Ïñ
+		equalizeHist(gray, gray);		//ç›´æ–¹å›¾å¯¹å‡è¡¡åŒ–å¼ºåŒ–å›¾åƒ
 		face_detector.detectMultiScale(gray, faces, 1.1, 3, 0, Size(100, 100));
 		for (size_t t = 0; t < faces.size(); t++) {
 			rectangle(frame, faces[t], Scalar(255, 0, 0), 2, 8, 0);
 
-			// ¼ÆËã offset ROI£¬ËõĞ¡Ä£°åÆ¥ÅäµÄÇøÓò£¬¼õÉÙ¼ÆËãÁ¿£¨¶Ô¿ÉÄÜÃæ»ıËõĞ¡µÄÍ¬Ê±£¬Í¬Ê±¿¼ÂÇÁËÆ«ÒÆÁ¿£©
+			// è®¡ç®— offset ROIï¼Œç¼©å°æ¨¡æ¿åŒ¹é…çš„åŒºåŸŸï¼Œå‡å°‘è®¡ç®—é‡ï¼ˆå¯¹å¯èƒ½é¢ç§¯ç¼©å°çš„åŒæ—¶ï¼ŒåŒæ—¶è€ƒè™‘äº†åç§»é‡ï¼‰
 			int offsety = faces[t].height / 4;
 			int offsetx = faces[t].width / 8;
 			int eyeheight = faces[t].height / 2 - offsety;
 			int eyewidth = faces[t].width / 2 - offsetx;
 
-			// ½ØÈ¡×óÑÛÇøÓò
+			// æˆªå–å·¦çœ¼åŒºåŸŸ
 			Rect leftRect;
 			leftRect.x = faces[t].x + offsetx;
 			leftRect.y = faces[t].y + offsety;
@@ -91,7 +91,7 @@ int main() {
 			leftRect.height = eyeheight;
 			Mat leftRoi = gray(leftRect);
 
-			// ¼ì²â×óÑÛ
+			// æ£€æµ‹å·¦çœ¼
 			leftyeye_detector.detectMultiScale(leftRoi, eyes, 1.1, 1, 0, Size(50, 50));
 			for (size_t t = 0; t < eyes.size(); t++) {
 				eyes[t].x = eyes[t].x + leftRect.x;
