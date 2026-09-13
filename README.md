@@ -1,3 +1,5 @@
-# CV
-复杂背景下基于OpenCV的目标实时跟踪与姿态识别
-研一上《计算机图形学》课程项目，基于颜色的目标实时定位跟踪以及姿态识别，舰载机加油机械臂的视觉系统，用于自动完成加油枪与加油口的对接调整。
+# Computer Vision Project Archive
+
+Coursework and experiments for a computer-vision project that used image feedback to support automated alignment and adjustment.
+
+The repository is retained as a historical technical reference. Dependency versions and build instructions may require modernization before reuse.
